@@ -60,6 +60,165 @@ public class Gwtissandra implements EntryPoint {
 	// Bottom page elements
 	final Label status = new Label("");
 	final Label errorLabel = new Label();
+	
+	// helper class
+	class UserlineClickHandler implements ClickHandler {
+
+		private User user;
+
+		public UserlineClickHandler(User user) {
+			this.user = user;
+		}
+
+		@Override
+		public void onClick(ClickEvent event) {
+			// Open the panel on the right side.
+			RootPanel.get("right").clear();
+			final DecoratorPanel dp = new DecoratorPanel();
+			final VerticalPanel vp = new VerticalPanel();
+			final VerticalPanel mainVp = new VerticalPanel();
+			final VerticalPanel vpFollow = new VerticalPanel();
+			vp.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+			vpFollow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			dp.add(mainVp);
+			mainVp.add(vpFollow);
+			mainVp.add(vp);
+			RootPanel.get("right").add(dp);
+			// Add a Follow/Unfollow button.
+			if (!user.getName().equals(getUser().getName())) {
+				followerService.getFolloweesOf(getUser().getName(),
+						new AsyncCallback<List<Followee>>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								caught.printStackTrace();
+							}
+
+							@Override
+							public void onSuccess(List<Followee> followees) {
+								System.out.println("Followees:");
+								for (Followee f : followees) {
+									System.out.println(f.getUsername());
+								}
+								if (followees.contains(getUser().getName())) {
+									// Add Unfollow button
+								} else {
+									Button followButton = new Button(
+											"FOLLOW");
+									vpFollow.add(followButton);
+									followButton
+											.addClickHandler(new FollowHandler(
+													getUser().getName(),
+													user.getName()));
+								}
+							}
+
+						});
+			}
+
+			// Add tweets of user.
+			// Retrieve userline from Cassandra.
+			tweetService.getUserline(user,
+					new Long(System.currentTimeMillis()), 30,
+					new AsyncCallback<Tweet[]>() {
+						public void onFailure(Throwable caught) {
+							caught.printStackTrace();
+						}
+
+						public void onSuccess(Tweet[] result) {
+							updateFeedElement(vp, result);
+						}
+
+						private void updateFeedElement(VerticalPanel feed,
+								Tweet[] tweets) {
+							feed.clear();
+							for (Tweet t : tweets) {
+								if (t != null) {
+									// Add tweets the feed
+									HorizontalPanel hp = new HorizontalPanel();
+									hp.add(new UsernameLink(new User(t
+											.getUsername())));
+									hp.add(new Label(": " + t.getBody()));
+									feed.add(hp);
+								}
+							}
+						}
+
+					});
+		}
+
+	}
+	
+	// helper class
+	class UsernameLink extends Label {
+		public UsernameLink(User user) {
+			super(user.getName());
+			// Make it look like a hyperlink.
+			super.setStyleName("hyperlinkStyle");
+			// Open a new view on the right side when someone clicks.
+			super.addClickHandler(new UserlineClickHandler(user));
+		}
+	}
+	
+	// helper method
+	private void updateFeedElement(VerticalPanel feed, Tweet[] tweets) {
+		feed.clear();
+		for (Tweet t : tweets) {
+			if (t != null) {
+				// Add tweets the feed
+				HorizontalPanel hp = new HorizontalPanel();
+				hp.add(new UsernameLink(new User(t.getUsername())));
+				hp.add(new Label(": " + t.getBody()));
+				feed.add(hp);
+			}
+		}
+	}
+	
+	private void updateHome() {
+		// Retrieve the 30 most recent own tweets from Cassandra.
+		tweetService.getUserline(getUser(),
+				new Long(System.currentTimeMillis()), 30,
+				new AsyncCallback<Tweet[]>() {
+					public void onFailure(Throwable caught) {
+						caught.printStackTrace();
+					}
+
+					public void onSuccess(Tweet[] result) {
+						updateFeedElement(myTeets, result);
+					}
+				});			
+	}
+	
+	private void updateUserline() {
+		// View followee's recent tweets.
+		tweetService.getTimeline(getUser(),
+				new Long(System.currentTimeMillis()), 30,
+				new AsyncCallback<Tweet[]>() {
+					public void onFailure(Throwable caught) {
+						caught.printStackTrace();
+					}
+
+					public void onSuccess(Tweet[] result) {
+						updateFeedElement(timelineTweets, result);
+					}
+				});
+	}
+	
+	public void updatePublicTweets() {
+		// View the 30 newest tweets of all tweets.
+		tweetService.getUserline(new User(
+				CassandraParam.PUBLIC_USERLINE_KEY.getValue()),
+				new Long(System.currentTimeMillis()), 30,
+				new AsyncCallback<Tweet[]>() {
+					public void onFailure(Throwable caught) {
+						caught.printStackTrace();
+					}
+
+					public void onSuccess(Tweet[] result) {
+						updateFeedElement(publicUserlineTweets, result);
+					}
+				});
+	}
 
 	/**
 	 * Create a remote service proxy to talk to the server-side services.
@@ -81,160 +240,14 @@ public class Gwtissandra implements EntryPoint {
 			RootPanel.get("right").clear();
 			// Three Tabs can be selected:
 			if (event.getSelectedItem().equals(0)) {
-				// Retrieve the 30 most recent own tweets from Cassandra.
-				tweetService.getUserline(getUser(),
-						new Long(System.currentTimeMillis()), 30,
-						new AsyncCallback<Tweet[]>() {
-							public void onFailure(Throwable caught) {
-								caught.printStackTrace();
-							}
-
-							public void onSuccess(Tweet[] result) {
-								updateFeedElement(myTeets, result);
-							}
-						});
-				// View followee's recent tweets.
+				updateHome();
 			} else if (event.getSelectedItem().equals(1)) {
-				tweetService.getTimeline(getUser(),
-						new Long(System.currentTimeMillis()), 30,
-						new AsyncCallback<Tweet[]>() {
-							public void onFailure(Throwable caught) {
-								caught.printStackTrace();
-							}
-
-							public void onSuccess(Tweet[] result) {
-								updateFeedElement(timelineTweets, result);
-							}
-						});
-				// View the 30 newest tweets of all tweets.
+				updateUserline();
 			} else {
-				tweetService.getUserline(new User(
-						CassandraParam.PUBLIC_USERLINE_KEY.getValue()),
-						new Long(System.currentTimeMillis()), 30,
-						new AsyncCallback<Tweet[]>() {
-							public void onFailure(Throwable caught) {
-								caught.printStackTrace();
-							}
-
-							public void onSuccess(Tweet[] result) {
-								updateFeedElement(publicUserlineTweets, result);
-							}
-						});
+				updatePublicTweets();
 			}
 		}
 
-		// helper method
-		private void updateFeedElement(VerticalPanel feed, Tweet[] tweets) {
-			feed.clear();
-			for (Tweet t : tweets) {
-				if (t != null) {
-					// Add tweets the feed
-					HorizontalPanel hp = new HorizontalPanel();
-					hp.add(new UsernameLink(new User(t.getUsername())));
-					hp.add(new Label(": " + t.getBody()));
-					feed.add(hp);
-				}
-			}
-		}
-
-		// helper class
-		class UsernameLink extends Label {
-			public UsernameLink(User user) {
-				super(user.getName());
-				// Make it look like a hyperlink.
-				super.setStyleName("hyperlinkStyle");
-				// Open a new view on the right side when someone clicks.
-				super.addClickHandler(new UserlineClickHandler(user));
-			}
-		}
-
-		// helper class
-		class UserlineClickHandler implements ClickHandler {
-
-			private User user;
-
-			public UserlineClickHandler(User user) {
-				this.user = user;
-			}
-
-			@Override
-			public void onClick(ClickEvent event) {
-				// Open the panel on the right side.
-				RootPanel.get("right").clear();
-				final DecoratorPanel dp = new DecoratorPanel();
-				final VerticalPanel vp = new VerticalPanel();
-				final VerticalPanel mainVp = new VerticalPanel();
-				final VerticalPanel vpFollow = new VerticalPanel();
-				vp.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-				vpFollow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-				dp.add(mainVp);
-				mainVp.add(vpFollow);
-				mainVp.add(vp);
-				RootPanel.get("right").add(dp);
-				// Add a Follow/Unfollow button.
-				if (!user.getName().equals(getUser().getName())) {
-					followerService.getFolloweesOf(getUser().getName(),
-							new AsyncCallback<List<Followee>>() {
-
-								@Override
-								public void onFailure(Throwable caught) {
-									caught.printStackTrace();
-								}
-
-								@Override
-								public void onSuccess(List<Followee> followees) {
-									System.out.println("Followees:");
-									for (Followee f : followees) {
-										System.out.println(f.getUsername());
-									}
-									if (followees.contains(getUser().getName())) {
-										// Add Unfollow button
-									} else {
-										Button followButton = new Button(
-												"FOLLOW");
-										vpFollow.add(followButton);
-										followButton
-												.addClickHandler(new FollowHandler(
-														getUser().getName(),
-														user.getName()));
-									}
-								}
-
-							});
-				}
-
-				// Add tweets of user.
-				// Retrieve userline from Cassandra.
-				tweetService.getUserline(user,
-						new Long(System.currentTimeMillis()), 30,
-						new AsyncCallback<Tweet[]>() {
-							public void onFailure(Throwable caught) {
-								caught.printStackTrace();
-							}
-
-							public void onSuccess(Tweet[] result) {
-								updateFeedElement(vp, result);
-							}
-
-							private void updateFeedElement(VerticalPanel feed,
-									Tweet[] tweets) {
-								feed.clear();
-								for (Tweet t : tweets) {
-									if (t != null) {
-										// Add tweets the feed
-										HorizontalPanel hp = new HorizontalPanel();
-										hp.add(new UsernameLink(new User(t
-												.getUsername())));
-										hp.add(new Label(": " + t.getBody()));
-										feed.add(hp);
-									}
-								}
-							}
-
-						});
-			}
-
-		}
 	}
 
 	/**
@@ -272,6 +285,8 @@ public class Gwtissandra implements EntryPoint {
 
 						@Override
 						public void onSuccess(Void result) {
+							// Refresh own tweet line.
+							updateHome();
 							System.out.println("User " + getUser().getName()
 									+ " sent the tweet.");
 						}
@@ -349,6 +364,9 @@ public class Gwtissandra implements EntryPoint {
 		// Add Event Handler
 		sendButton.addClickHandler(new SendTweetHandler());
 		getTabPanel().addSelectionHandler(new UpdateLineHandler());
+		
+		// Refresh own tweet line.
+		updateHome();
 
 	}
 
