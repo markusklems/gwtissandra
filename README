@@ -1,0 +1,24 @@
+DESCRIPTION
+A Twitter clone based on GWT (front-end) and Cassandra (data persistence).
+(Actually, it is a Twitter clone clone since the idea is based on
+https://github.com/ericflo/twissandra.git and https://github.com/jhermes/twissjava.git.)
+
+AUTHOR
+Markus Klems, Karlsruhe Institute of Technology (KIT), Germany
+
+INTENDED USE
+Demonstration of Cassandra programming in Java; learning by doing.
+The intention is not to provide a real-world Twitter clone ;-)
+You are advised not to use this code in production. I give no warranties whatsoever.
+
+INSTALL & CONFIGURE
+Currently there is no Maven POM or any other build script.
+Everything comes as a big Eclipse project with all jars included.
+These are the steps to get up and running:
+
+1) Server: Install and run Cassandra 0.7 (tested with beta 3).
+2) Front-end: Install and configure GWT (tested with 2.1.0).
+If you use Eclipse, I suggest the Eclipse plug-in available on http://code.google.com/eclipse/.
+Then you can start and stop a local GWT test server by simply right click on on the Eclipse project > "Run as Web application".
+Should work out of the box.
+3) Adjust configurations in enum edu.kit.aifb.cass.shared.CassandraParam.java

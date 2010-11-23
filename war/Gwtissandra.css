@@ -1,0 +1,16 @@
+/** Add css rules here for your application. */
+
+.twissandraButton {
+  display: block;
+  font-size: 16pt;
+}
+
+.error {
+  color: red;
+}
+
+.hyperlinkStyle {
+	color: blue;
+	font-weight: bold;
+	text-decoration: underline;
+}
