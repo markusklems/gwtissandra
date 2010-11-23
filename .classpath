@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="test-classes" path="test"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/apache-cassandra-0.7.0-beta3.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/cassandra-javautils-0.7.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-pool-1.5.3.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-collections-1.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-servlet.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/hector-0.7.0-19_11082010-sources.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/hector-0.7.0-19_11082010.jar" sourcepath="war/WEB-INF/lib/hector-0.7.0-19_11082010-sources.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/high-scale-lib-1.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jug-asl-2.0.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/libthrift-0.5.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/perf4j-0.9.12.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/slf4j-log4j12-1.6.1.jar"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
