@@ -148,6 +148,7 @@ public class TweetServiceImpl extends RemoteServiceServlet implements
 						LongSerializer.get(), se);
 		q.setColumnFamily(columnFamilyType);
 		// Range query from 0 to the most recent timestamp.
+		// TODO reverse?
 		q.setRange(0L,timestamp, false, count);
 		// Restrict query on rows with key=username.
 		q.setKeys(username, username);

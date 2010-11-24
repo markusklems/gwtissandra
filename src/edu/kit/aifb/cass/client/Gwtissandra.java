@@ -75,6 +75,7 @@ public class Gwtissandra implements EntryPoint {
 			// Open the panel on the right side.
 			RootPanel.get("right").clear();
 			final DecoratorPanel dp = new DecoratorPanel();
+			dp.setWidth("100%");
 			final VerticalPanel vp = new VerticalPanel();
 			final VerticalPanel mainVp = new VerticalPanel();
 			final VerticalPanel vpFollow = new VerticalPanel();
@@ -343,6 +344,7 @@ public class Gwtissandra implements EntryPoint {
 		getHome().add(myTeets);
 		getTimeline().add(timelineTweets);
 		getPublicUserline().add(publicUserlineTweets);
+		tabPanel.setWidth("100%");
 
 		// Focus the cursor on the name field when the app loads
 		tweetText.setFocus(true);
@@ -406,6 +408,9 @@ public class Gwtissandra implements EntryPoint {
 						me.setFollowees(followees);
 					}
 				});
+		updateHome();
+		updateUserline();
+		updatePublicTweets();
 	}
 
 	// ************

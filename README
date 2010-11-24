@@ -21,4 +21,4 @@ These are the steps to get up and running:
 If you use Eclipse, I suggest the Eclipse plug-in available on http://code.google.com/eclipse/.
 Then you can start and stop a local GWT test server by simply right click on on the Eclipse project > "Run as Web application".
 Should work out of the box.
-3) Adjust configurations in enum edu.kit.aifb.cass.shared.CassandraParam.java
+3) Adjust default configurations in enum edu.kit.aifb.cass.shared.CassandraParam.java if necessary.
